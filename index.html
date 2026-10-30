@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1720" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="Voxel Isle — a tiny floating Minecraft-style world with a living day and night cycle. Built for touch, with optional tilt look." />
+  <title>Voxel Isle · A Floating Sanctuary</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%2370c66f' d='M32 4 60 20 32 36 4 20z'/%3E%3Cpath fill='%23744c2d' d='M4 20 32 36 32 62 4 46z'/%3E%3Cpath fill='%2353193a' d='M60 20 60 46 32 62 32 36z'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="scene" aria-label="A voxel island floating in the sky"></canvas>
+
+    <div class="vignette" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="hud-top" id="hud">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+          <path fill="#84d47f" d="M32 3 61 20 32 37 3 20z"/>
+          <path fill="#7a4d2b" d="M3 20 32 37 32 62 3 45z"/>
+          <path fill="#432038" d="M61 20 61 45 32 62 32 37z"/>
+          <path fill="#a9eb9f" d="M32 3 61 20 32 37z" opacity=".55"/>
+        </svg>
+        <div class="brand-copy">
+          <h1>Voxel Isle</h1>
+          <p><span class="live-dot"></span>Floating Sanctuary</p>
+        </div>
+      </div>
+
+      <div class="shard-meter" aria-label="Lumen shards collected">
+        <svg viewBox="0 0 24 32" aria-hidden="true"><path d="M12 1 22 10 12 31 2 10z" fill="currentColor"/><path d="M12 1 12 31 2 10z" fill="#fff" opacity=".35"/></svg>
+        <span id="shardCount">0</span><span class="shard-total">/5</span>
+      </div>
+
+      <div class="top-actions">
+        <button class="chip time-chip" id="timeBtn" aria-label="Time of day. Tap to skip ahead.">
+          <span class="chip-icon" id="timeIcon" aria-hidden="true">☀</span>
+          <span class="chip-text"><span id="clock">07:55</span><small id="phase">Morning</small></span>
+        </button>
+        <button class="icon-btn" id="speedBtn" aria-label="Cycle time speed" title="Cycle time speed">
+          <span id="speedLabel">1×</span>
+        </button>
+        <button class="icon-btn" id="soundBtn" aria-label="Toggle sound" title="Toggle sound">
+          <svg class="icon-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <svg class="icon-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="m16 9 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <button class="icon-btn tilt-btn" id="tiltBtn" aria-label="Toggle tilt look" title="Tilt look">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9.5 5h5M12 8.5v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="17.3" r="1.15" fill="currentColor"/></svg>
+          <span class="tilt-state" id="tiltState">OFF</span>
+        </button>
+        <button class="icon-btn" id="helpBtn" aria-label="How to play" title="How to play">
+          <span class="question">?</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="hint" id="hint">
+      <span class="hint-key">Drag</span> look around <i></i>
+      <span class="hint-key">Joystick</span> wander <i></i>
+      <span class="hint-key">Jump</span> hop blocks
+    </div>
+
+    <div class="control-cluster" id="controls">
+      <div class="joystick" id="joystick" role="presentation">
+        <div class="joystick-ring"></div>
+        <div class="joystick-knob" id="joystickKnob">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".7"/></svg>
+        </div>
+        <span class="joystick-label">MOVE</span>
+      </div>
+
+      <div class="action-cluster">
+        <button class="action-btn run-btn" id="runBtn" aria-label="Toggle sprint" title="Sprint">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M18 3 8 18h6l-2 11 10-16h-6z" fill="currentColor"/></svg>
+          <span>RUN</span>
+        </button>
+        <button class="action-btn jump-btn" id="jumpBtn" aria-label="Jump">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 5 7 18h6v9h6v-9h6z" fill="currentColor"/></svg>
+          <span>JUMP</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+    <div class="modal" id="helpModal" aria-hidden="true">
+      <div class="modal-card">
+        <button class="modal-close" id="closeHelp" aria-label="Close">×</button>
+        <p class="eyebrow">Field notes</p>
+        <h2>A small world, all yours.</h2>
+        <p class="modal-lead">Wander a floating voxel island as the sun wheels overhead. Gather the five lumen shards hidden among the trees.</p>
+        <div class="control-list">
+          <div><span class="control-icon">◉</span><b>Move</b><span>Left joystick, or W A S D.</span></div>
+          <div><span class="control-icon">↔</span><b>Look</b><span>Drag anywhere, or move the mouse.</span></div>
+          <div><span class="control-icon">⤒</span><b>Jump</b><span>Jump button, or the space bar.</span></div>
+          <div><span class="control-icon">⚡</span><b>Sprint</b><span>Run toggle, or hold Shift.</span></div>
+          <div><span class="control-icon">⌁</span><b>Tilt</b><span>Tap the tilt button and lean your device. On iPhone and iPad, motion access is requested first.</span></div>
+        </div>
+        <p class="modal-foot">Tip: tap the clock to skip ahead, and the <b>1×</b> button to speed up the whole cycle.</p>
+        <button class="primary-btn" id="resumeBtn">Back to the isle</button>
+      </div>
+    </div>
+
+    <div class="fade" id="fade" aria-hidden="true"></div>
+
+    <div class="loader" id="loader">
+      <div class="loader-inner">
+        <div class="loader-cube">
+          <div class="cube-top"></div><div class="cube-left"></div><div class="cube-right"></div>
+        </div>
+        <p class="eyebrow">A tiny world adrift</p>
+        <h2>Voxel Isle</h2>
+        <div class="loader-bar"><i id="loaderBar"></i></div>
+        <p class="loader-copy" id="loaderCopy">Raising the island…</p>
+      </div>
+    </div>
+
+    <div class="rotate-note" aria-hidden="true">
+      <span>↻</span> Turn your device upright for the best view
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
