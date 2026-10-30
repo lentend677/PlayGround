@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a1a24" />
+  <meta name="description" content="SKYSHARD — a hand-built voxel island adrift above the clouds. Explore, build, and watch the day turn to night." />
+  <title>SKYSHARD · a voxel island</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%2377d17a' d='M16 2 30 10v12L16 30 2 22V10z'/%3E%3Cpath fill='%239be08a' d='M16 2 30 10l-14 8L2 10z'/%3E%3Cpath fill='%2358a05f' d='M16 18v12L2 22V10z'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <canvas id="scene" aria-label="A floating voxel island you can explore"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <!-- ── Loading ─────────────────────────────────────────────────────── -->
+  <div id="loading" class="loading-screen">
+    <div class="loading-inner">
+      <div class="voxel-loader" aria-hidden="true">
+        <div class="voxel-cube">
+          <span class="f f-front"></span><span class="f f-back"></span>
+          <span class="f f-right"></span><span class="f f-left"></span>
+          <span class="f f-top"></span><span class="f f-bottom"></span>
+        </div>
+        <div class="loader-shadow"></div>
+      </div>
+      <p class="loading-brand">SKYSHARD</p>
+      <div class="loading-track"><span id="loadBar"></span></div>
+      <p id="loadStatus" class="loading-status">Shaping the island…</p>
+    </div>
+  </div>
+
+  <!-- ── Start screen ────────────────────────────────────────────────── -->
+  <section id="start" class="start-screen" aria-label="Start screen">
+    <div class="start-glow" aria-hidden="true"></div>
+    <div class="start-inner">
+      <div class="start-card">
+        <div class="start-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="34" height="34"><path fill="#9ce08b" d="M16 2 30 10v12L16 30 2 22V10z"/><path fill="#d6f4b2" d="M16 2 30 10l-14 8L2 10z"/><path fill="#5e9e63" d="M16 18v12L2 22V10z"/></svg>
+        </div>
+        <p class="eyebrow">a little world above the clouds</p>
+        <h1 class="start-title">SKY<br><em>SHARD</em></h1>
+        <p class="start-lede">Wander a floating voxel island, plant a lantern, and watch the sun sink beneath the cloud sea.</p>
+
+        <button id="playBtn" class="btn-play" type="button">
+          <span>Explore the island</span>
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+
+        <div class="start-toggles">
+          <button id="tiltStartBtn" class="toggle-chip" type="button" aria-pressed="false">
+            <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M10.4 5.2h3.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M2 9.2 4.6 12 2 14.8M22 9.2 19.4 12l2.6 2.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Tilt look</span><b class="chip-state">off</b>
+          </button>
+          <button id="soundStartBtn" class="toggle-chip is-on" type="button" aria-pressed="true">
+            <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M4 9.5h3.6L13 5.4v13.2L7.6 14.5H4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M16.2 8.4a5 5 0 0 1 0 7.2M18.9 5.7a8.8 8.8 0 0 1 0 12.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            <span>Sound</span><b class="chip-state">on</b>
+          </button>
+        </div>
+
+        <div class="howto">
+          <div class="howto-item">
+            <span class="howto-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="21" height="21"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            </span>
+            <span><b>Drag to look</b><small>Tap a block to mine</small></span>
+          </div>
+          <div class="howto-item">
+            <span class="howto-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="21" height="21"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 12V8M12 12l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            </span>
+            <span><b>Joystick to move</b><small>Jump the island edge</small></span>
+          </div>
+          <div class="howto-item">
+            <span class="howto-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="21" height="21"><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+            </span>
+            <span><b>Chase the light</b><small>Day turns to night</small></span>
+          </div>
+        </div>
+      </div>
+      <p class="start-foot">Touch &amp; tilt ready <span>·</span> works on phone, tablet, desktop</p>
+    </div>
+  </section>
+
+  <!-- ── In-game HUD ─────────────────────────────────────────────────── -->
+  <main id="hud" hidden>
+    <div class="topbar">
+      <button id="menuBtn" class="icon-btn menu-btn" type="button" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+      </button>
+      <span class="hud-brand">SKYSHARD</span>
+      <div class="topbar-right">
+        <div id="tiltBadge" class="pill tilt-badge" hidden>
+          <span class="dot"></span><span>Tilt look</span>
+          <button id="recenterBtn" type="button" aria-label="Recenter tilt" title="Recenter tilt">◎</button>
+        </div>
+        <div class="pill clock-pill" title="Time of day">
+          <span id="clockIcon" class="clock-icon" aria-hidden="true">☀</span>
+          <span id="clockTime">07:40</span>
+          <button id="cycleBtn" class="speed-btn" type="button" aria-label="Change time speed" title="Cycle time speed">1×</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="crosshair" class="crosshair" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
+    <div id="targetName" class="target-name" aria-live="polite"></div>
+
+    <div id="joystick" class="joystick" aria-label="Movement joystick">
+      <div class="joystick-ring"></div>
+      <div id="joystickKnob" class="joystick-knob"></div>
+      <span class="joystick-hint">move</span>
+    </div>
+
+    <div class="actions">
+      <button id="mineBtn" class="action-btn mine" type="button" aria-label="Mine block" title="Mine">
+        <svg viewBox="0 0 24 24" width="25" height="25" aria-hidden="true"><path d="M4.5 19.5 14 10M8 6.5c3.5-3 8-2.2 10.5.5-4-1.4-7 .3-8.8 2.2L8 7.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.2 15.2l3.6 3.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <button id="placeBtn" class="action-btn place" type="button" aria-label="Place block" title="Place">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M12 3 21 8v8l-9 5-9-5V8z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m3.4 8.4 8.6 5 8.6-5M12 13.4V21" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </button>
+      <button id="jumpBtn" class="action-btn jump" type="button" aria-label="Jump" title="Jump">
+        <svg viewBox="0 0 24 24" width="27" height="27" aria-hidden="true"><path d="M12 19V6M6.5 11.5 12 6l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <div id="hotbar" class="hotbar" role="toolbar" aria-label="Block palette"></div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- ── Menu / pause ────────────────────────────────────────────────── -->
+  <section id="menu" class="sheet-wrap" hidden aria-label="Menu">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <p class="eyebrow">take a breath</p>
+          <h2>Island menu</h2>
+        </div>
+        <button id="closeMenuBtn" class="icon-btn" type="button" aria-label="Close menu">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      <div class="sheet-grid">
+        <button id="resumeBtn" class="btn-resume" type="button">Back to the island</button>
+
+        <div class="setting-row">
+          <div><b>Tilt look</b><small>Tilt your device to steer the camera</small></div>
+          <button id="tiltMenuBtn" class="switch" type="button" role="switch" aria-checked="false"><span></span></button>
+        </div>
+        <div class="setting-row">
+          <div><b>Sound</b><small>Wind, footsteps &amp; little chimes</small></div>
+          <button id="soundMenuBtn" class="switch is-on" type="button" role="switch" aria-checked="true"><span></span></button>
+        </div>
+        <div class="setting-row">
+          <div><b>Graphics</b><small>Shadows and crisp resolution</small></div>
+          <div class="seg" role="group" aria-label="Graphics quality">
+            <button data-quality="low" type="button">Low</button>
+            <button data-quality="high" class="is-active" type="button">High</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div><b>Day speed</b><small>A full day takes four minutes at 1×</small></div>
+          <div class="seg" role="group" aria-label="Day cycle speed">
+            <button data-speed="0" type="button">Pause</button>
+            <button data-speed="1" class="is-active" type="button">1×</button>
+            <button data-speed="4" type="button">4×</button>
+          </div>
+        </div>
+
+        <div class="menu-keys">
+          <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move</span>
+          <span><kbd>Drag</kbd> look</span>
+          <span><kbd>Space</kbd> jump</span>
+          <span><kbd>1–7</kbd> blocks</span>
+          <span><kbd>Click</kbd> mine</span>
+          <span><kbd>Right click</kbd> place</span>
+        </div>
+
+        <div class="sheet-foot">
+          <button id="newIslandBtn" class="btn-ghost" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            New island
+          </button>
+          <p>Built with three.js · no plugins, no loading screens</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="fallOverlay" class="fall-overlay" hidden>
+    <div class="fall-card">
+      <p class="eyebrow">the clouds are soft</p>
+      <h2>Lost to the sky</h2>
+      <p>We fished you out and put you back on solid grass.</p>
+      <button id="returnBtn" class="btn-play small" type="button">Return to the island</button>
+    </div>
+  </div>
+
+  <div id="rotateHint" class="rotate-hint" hidden>
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="7.5" y="2.5" width="9" height="19" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M4 8.5A10 10 0 0 0 4 15.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+    Rotate for a wider view
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
