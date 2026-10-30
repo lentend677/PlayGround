@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#173b3a" />
+  <meta name="description" content="Islebound — a tiny voxel island with a living day and night cycle. Explore by touch, tilt, or keyboard." />
+  <title>Islebound — a tiny voxel world</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23173b3a'/%3E%3Cpath d='M12 35l20-11 20 11-20 11z' fill='%237fd06a'/%3E%3Cpath d='M12 35v9l20 11V46z' fill='%23865f3c'/%3E%3Cpath d='M52 35v9L32 55V46z' fill='%236c4a2f'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three.module.js" } }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <canvas id="scene" aria-label="A voxel island floating in a painted sky" role="img"></canvas>
+    <div class="grade" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <div id="hud" class="hud is-hidden">
+      <header class="topbar">
+        <div class="brand" aria-label="Islebound">
+          <span class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i>
+          </span>
+          <span class="brand-text">
+            <b>ISLEBOUND</b>
+            <small>a tiny voxel world</small>
+          </span>
+        </div>
+
+        <div class="day-panel" aria-label="Time of day">
+          <button id="cycleBtn" class="day-toggle" type="button" aria-label="Pause day and night cycle" title="Pause cycle">
+            <span class="orb" id="orb">
+              <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M2.4 12h2.2M19.4 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6"/></svg>
+              <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 15.2A8.6 8.6 0 0 1 8.8 3.7a8.6 8.6 0 1 0 11.5 11.5Z"/></svg>
+            </span>
+            <span class="day-copy">
+              <span class="day-line"><b id="clock">12:00</b><span id="dayCount">Day 1</span></span>
+              <span class="phase" id="phase">Golden morning</span>
+            </span>
+          </button>
+          <div class="cycle-rail" aria-hidden="true">
+            <span class="cycle-fill" id="cycleFill"></span>
+            <span class="cycle-dot" id="cycleDot"></span>
+          </div>
+          <button id="speedBtn" class="speed-btn" type="button" aria-label="Change time speed" title="Time speed">1×</button>
+        </div>
+
+        <nav class="top-actions" aria-label="Settings">
+          <button id="tiltBtn" class="icon-btn" type="button" aria-pressed="false" aria-label="Enable tilt steering" title="Tilt steering">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="3" width="8" height="15" rx="2"/><path d="M10.4 20.5h3.2M3.5 8.5a7 7 0 0 0 0 7M20.5 8.5a7 7 0 0 1 0 7"/></svg>
+          </button>
+          <button id="soundBtn" class="icon-btn" type="button" aria-pressed="true" aria-label="Mute sound" title="Sound">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.2h3.4L12 5.2v13.6L7.4 14.8H4Z"/><path class="sound-wave" d="M15.2 8.6a5 5 0 0 1 0 6.8M18 6a9 9 0 0 1 0 12"/><path class="sound-slash" d="M4.5 4.5l15 15"/></svg>
+          </button>
+          <button id="fullBtn" class="icon-btn" type="button" aria-label="Toggle fullscreen" title="Fullscreen">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+          </button>
+        </nav>
+      </header>
+
+      <div id="reticle" class="reticle" aria-hidden="true">
+        <i class="r-tl"></i><i class="r-tr"></i><i class="r-bl"></i><i class="r-br"></i><span></span>
+      </div>
+      <div id="targetPill" class="target-pill" aria-live="polite"></div>
+
+      <div id="joystick" class="joystick" role="group" aria-label="Movement joystick">
+        <div class="joystick-ring" aria-hidden="true"><i></i></div>
+        <div id="stickKnob" class="stick-knob">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5l5 5M12 4.5l-5 5M12 19.5l5-5M12 19.5l-5-5"/></svg>
+        </div>
+        <span class="control-label">move</span>
+      </div>
+
+      <div class="action-cluster">
+        <div class="build-actions">
+          <button id="breakBtn" class="action-btn break-btn" type="button" aria-label="Break block" title="Break block">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.2 15.3c1.9-4.8 6.3-8.2 11.4-8.8l4.2 4.2c-.6 5.1-4 9.5-8.8 11.4Z"/><path d="M8.2 15.8l-4 4"/></svg>
+            <span>break</span>
+          </button>
+          <button id="placeBtn" class="action-btn place-btn" type="button" aria-label="Place block" title="Place block">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2l8 4.3v9L12 20.8l-8-4.3v-9Z"/><path d="M4 7.5l8 4.3 8-4.3M12 11.8v9"/></svg>
+            <span>place</span>
+          </button>
+        </div>
+        <button id="jumpBtn" class="action-btn jump-btn" type="button" aria-label="Jump" title="Jump">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6.5 10.5L12 5l5.5 5.5"/></svg>
+          <span>jump</span>
+        </button>
+      </div>
+
+      <div class="hotbar-wrap">
+        <span class="hotbar-label">build</span>
+        <div id="hotbar" class="hotbar" role="group" aria-label="Block palette">
+          <button class="swatch selected" data-type="grass" type="button" aria-label="Grass block" title="Grass"><i class="sw-grass"></i></button>
+          <button class="swatch" data-type="planks" type="button" aria-label="Oak planks" title="Oak planks"><i class="sw-planks"></i></button>
+          <button class="swatch" data-type="stone" type="button" aria-label="Stone block" title="Stone"><i class="sw-stone"></i></button>
+          <button class="swatch" data-type="sand" type="button" aria-label="Sand block" title="Sand"><i class="sw-sand"></i></button>
+        </div>
+      </div>
+
+      <div class="desktop-hints" aria-hidden="true">
+        <span><kbd>WASD</kbd> wander</span>
+        <span><kbd>drag</kbd> look</span>
+        <span><kbd>space</kbd> jump</span>
+        <span><kbd>click</kbd> break</span>
+        <span><kbd>F</kbd> place</span>
+      </div>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    </div>
+
+    <section id="startScreen" class="start-screen" aria-labelledby="title">
+      <div class="start-glow" aria-hidden="true"></div>
+      <div class="start-card">
+        <div class="eyebrow"><span></span> a pocket-sized sandbox</div>
+        <h1 id="title">ISLE<span>BOUND</span></h1>
+        <p class="lede">A little voxel island, adrift between day and night. Wander the meadow, climb the hill, and leave your mark.</p>
+        <div class="feature-chips" aria-label="Features">
+          <span><i class="chip-dot touch"></i>touch first</span>
+          <span><i class="chip-dot tilt"></i>tilt steering</span>
+          <span><i class="chip-dot sky"></i>living sky</span>
+        </div>
+        <button id="startBtn" class="start-btn" type="button">
+          <span>Start</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6.5l5.5 5.5-5.5 5.5"/></svg>
+        </button>
+        <p class="start-note">Walk with the stick · drag to look · tap the tilt button on your phone</p>
+      </div>
+      <div class="start-footer">
+        <span>ISLEBOUND / 01</span>
+        <span>Made of tiny cubes &amp; golden light</span>
+      </div>
+    </section>
+
+    <div id="loading" class="loading">
+      <div class="load-cube" aria-hidden="true"><i></i><i></i><i></i></div>
+      <p>Waking the island<span class="ellipsis">...</span></p>
+    </div>
+
+    <div id="errorScreen" class="error-screen" hidden>
+      <div>
+        <h2>The island is out of reach</h2>
+        <p id="errorText">This browser could not start WebGL. Try a newer browser with hardware acceleration enabled.</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
