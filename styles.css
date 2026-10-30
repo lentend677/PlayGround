@@ -236,7 +236,7 @@ body.building .build-brackets { opacity: 1; }
 .health-row.low .vital-bar i { background: linear-gradient(90deg, #e53d3d, #ff8a5b); }
 .vital-row b { width: 26px; text-align: right; font-size: 10px; font-weight: 800; font-variant-numeric: tabular-nums; text-shadow: 0 1px 2px #000; }
 .wood-chip {
-  position: absolute; right: -37px; bottom: 2px; display: flex; align-items: center; gap: 3px;
+  position: absolute; left: 0; top: -24px; display: flex; align-items: center; gap: 3px;
   font-size: 10px; font-weight: 800; color: #f7d59a; background: rgba(20, 15, 9, 0.62);
   border: 1px solid rgba(230, 180, 100, 0.24); border-radius: 6px; padding: 2px 5px;
 }
@@ -244,7 +244,7 @@ body.building .build-brackets { opacity: 1; }
 
 /* touch controls */
 .joystick {
-  position: absolute; left: calc(26px + var(--safe-left)); bottom: calc(96px + var(--safe-bottom));
+  position: absolute; left: calc(66px + var(--safe-left)); bottom: calc(96px + var(--safe-bottom));
   width: 118px; height: 118px; border-radius: 50%; display: none; pointer-events: none;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.05), rgba(8, 14, 28, 0.24) 68%, transparent 72%);
   border: 1.5px solid rgba(255, 255, 255, 0.17); box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.28);
@@ -539,7 +539,7 @@ body.desktop-ui .joystick, body.desktop-ui .actions { display: none; }
   .menu { background: linear-gradient(180deg, rgba(5, 9, 18, 0.72), rgba(5, 9, 18, 0.5) 38%, rgba(5, 9, 18, 0.88) 100%); }
   .menu-main { justify-content: flex-end; padding: 0 20px calc(88px + var(--safe-bottom)); max-width: none; text-align: center; align-items: center; }
   .eyebrow { justify-content: center; font-size: 8px; letter-spacing: 0.18em; }
-  .logo { font-size: clamp(54px, 15vw, 88px); justify-content: center; margin-top: 12px; }
+  .logo { font-size: clamp(38px, 14vw, 88px); justify-content: center; margin-top: 12px; }
   .logo-royale { margin: 11px auto 0; font-size: 13px; letter-spacing: 0.34em; padding: 5px 12px 5px 16px; }
   .tagline { font-size: 12px; margin: 16px 0 18px; }
   .menu-actions { flex-direction: column; width: min(310px, 82vw); }
@@ -579,10 +579,10 @@ body.desktop-ui .joystick, body.desktop-ui .actions { display: none; }
   .wslot-name { font-size: 6.5px; }
   .wslot-ammo { font-size: 9px; }
   .vitals { width: 174px; }
-  .wood-chip { right: -32px; font-size: 9px; }
+  .wood-chip { top: -23px; font-size: 9px; }
   .vital-row b { width: 23px; font-size: 9px; }
   .build-hud { top: calc(88px + var(--safe-top)); width: 230px; }
-  .joystick { bottom: calc(86px + var(--safe-bottom)); width: 108px; height: 108px; left: calc(22px + var(--safe-left)); }
+  .joystick { bottom: calc(86px + var(--safe-bottom)); width: 108px; height: 108px; left: calc(64px + var(--safe-left)); }
   .stick-knob { width: 48px; height: 48px; }
   .action svg { width: 20px; height: 20px; }
   .action.fire { width: 88px; height: 88px; bottom: 84px; }
@@ -632,6 +632,27 @@ body.desktop-ui .joystick, body.desktop-ui .actions { display: none; }
   .menu-main { padding-left: 6vw; }
   .menu-cards { flex-wrap: wrap; max-width: 680px; }
   .logo { font-size: clamp(70px, 9vw, 104px); }
+}
+
+@media (max-width: 350px) {
+  .logo { font-size: 13.6vw; }
+  .logo-royale { font-size: 11px; letter-spacing: 0.28em; padding: 5px 10px 5px 13px; }
+  .tagline { font-size: 11px; margin: 12px 0 14px; }
+  .menu-main { padding: 0 12px calc(70px + var(--safe-bottom)); }
+  .menu-actions { width: min(290px, 88vw); }
+  .map-frame { width: 96px; height: 96px; }
+  .hud-pill, .storm-pill { padding: 0 7px; }
+  .bottom-center { width: 190px; }
+  .vitals { width: 160px; }
+  .wslot { width: 48px; height: 44px; }
+  .joystick { bottom: calc(78px + var(--safe-bottom)); width: 96px; height: 96px; left: calc(52px + var(--safe-left)); }
+  .action.jump { right: 8px; bottom: 8px; width: 48px; height: 48px; }
+  .action.fire { width: 80px; height: 80px; bottom: 78px; }
+  .action.aim { right: 6px; bottom: 166px; width: 46px; height: 46px; }
+  .action.build { right: 64px; bottom: 166px; width: 46px; height: 46px; }
+  .action.reload { right: 120px; bottom: 112px; width: 44px; height: 44px; }
+  .action.switch { right: 120px; bottom: 220px; width: 40px; height: 40px; }
+  .build-hud { width: 210px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

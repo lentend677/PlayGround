@@ -254,8 +254,9 @@ export class UI {
     this.els.damageVignette.style.opacity = '0'
     this.els.stormVignette.style.opacity = '0'
     this.els.hitmarker.classList.remove('show')
-    this.els.hud.style.opacity = '0'
-    requestAnimationFrame(() => { this.els.hud.style.transition = 'opacity .4s'; this.els.hud.style.opacity = '1' })
+    const hud = this.els.hud
+    hud.style.transition = 'none'
+    hud.style.opacity = '1'
   }
 
   pause() {
